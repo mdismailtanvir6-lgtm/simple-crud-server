@@ -1,4 +1,5 @@
 // index.js
+import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import usersRouter from "./routes/users.route.js";
@@ -6,11 +7,19 @@ import usersRouter from "./routes/users.route.js";
 const app = express();
 
 // Middleware
-app.use(cors({ origin: "http://localhost:3000" }));
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://simple-crud-client-sigma.vercel.app",
+  ...(process.env.CLIENT_URLS?.split(",") ?? []),
+]
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
+app.use(cors({ origin: [...new Set(allowedOrigins)] }));
 app.use(express.json());
 
-// Port
-const port = 5000;
+// Port (hosting platforms such as Render set PORT)
+const port = process.env.PORT || 5000;
 
 // Root
 app.get("/", (req, res) => {
